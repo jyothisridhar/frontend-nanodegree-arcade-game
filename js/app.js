@@ -1,3 +1,8 @@
+var rightEdge = 505;
+var bottomEdge = 404;
+var tileWidth = 101;
+var tileHeight = 83;
+
 // Enemies our player must avoid
 var Enemy = function(x,y) {
     // Variables applied to each of our instances go here,
@@ -16,9 +21,10 @@ Enemy.prototype.update = function(dt) {
     // You should multiply any movement by the dt parameter
     // which will ensure the game runs at the same speed for
     // all computers.
-    var dx = 2;
-    if(this.x < 505) {
-        this.x = (this.x + dx);
+    var speed = Math.random() * (200 - 100) + 100;
+    //console.log(speed);
+    if(this.x < rightEdge) {
+        this.x += speed * dt;
         //console.log(this.x);
     }
     else {
@@ -35,8 +41,8 @@ Enemy.prototype.render = function() {
 // This class requires an update(), render() and
 // a handleInput() method.
 var Player = function() {
-    this.x = 101;
-    this.y = 303;
+    this.x = 202;
+    this.y = 404;
     this.sprite = 'images/char-boy.png';
 };
 
@@ -45,54 +51,70 @@ Player.prototype.render = function() {
 };
 
 Player.prototype.update = function() {
-    
+    //player.checkCollisions();
+};
+
+//Used the axis-aligned collision detection logic
+var checkCollisions = function() {
+    for(var i = 0; i < allEnemies.length; i++) {
+        if(player.x < allEnemies[i].x + 50 &&
+            player.x + 50 > allEnemies[i].x &&
+            player.y < allEnemies[i].y + 40 &&
+            player.y + 40 > allEnemies[i].y) {
+                //alert("Collision");
+                document.location.reload();
+        }
+    }
 };
 
 Player.prototype.handleInput = function(key){
     console.log(this.x, this.y);
     switch(key) {
         case 'left':
-        if(this.x - 101 < 0){
+        if(this.x - tileWidth < 0){
             this.x = 0;
         }
         else {
-            this.x -= 101;
+            this.x -= tileWidth;
         }
         break;
 
         case 'right':
-        if(this.x + 101 >= 505){
+        if(this.x + tileWidth >= rightEdge){
             this.x = 404;
         }
         else {
-            this.x += 101;
+            this.x += tileWidth;
         }
         break;
 
         case 'up':
-        if(this.y - 83 < 0){
+        if(this.y - tileHeight < 0){
             this.y = 0;
         }
         else {
-            this.y -= 83;
+            this.y -= tileHeight;
         }
         break;
 
         case 'down':
-        if(this.y + 83 >= 404){
+        if(this.y + tileHeight >= bottomEdge){
             this.y = 404;
         }
         else {
-            this.y += 83;
+            this.y += tileHeight;
         }
         break;
     }
 };
+
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
-var allEnemies = [ new Enemy(10, 60), new Enemy(10, 150), new Enemy(10, 235)];
+var allEnemies = [ new Enemy(0, 60), new Enemy(101, 150), new Enemy(202, 235), new Enemy(0, 321)];
+
 // Place the player object in a variable called player
 var player = new Player();
+
 // This listens for key presses and sends the keys to your
 // Player.handleInput() method. You don't need to modify this.
 document.addEventListener('keyup', function(e) {
