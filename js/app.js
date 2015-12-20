@@ -3,6 +3,8 @@ var bottomEdge = 404;
 var tileWidth = 101;
 var tileHeight = 83;
 
+var hasReachedWater = false;
+
 // Enemies our player must avoid
 var Enemy = function(x,y) {
     // Variables applied to each of our instances go here,
@@ -13,6 +15,7 @@ var Enemy = function(x,y) {
     this.sprite = 'images/enemy-bug.png';
     this.x = x;
     this.y = y;
+    this.speed = Math.floor(Math.random() * 250 + 1);
 };
 
 // Update the enemy's position, required method for game
@@ -21,10 +24,10 @@ Enemy.prototype.update = function(dt) {
     // You should multiply any movement by the dt parameter
     // which will ensure the game runs at the same speed for
     // all computers.
-    var speed = Math.random() * (200 - 100) + 100;
+    //var speed = Math.floor(Math.random() * 300 + 1);
     //console.log(speed);
     if(this.x < rightEdge) {
-        this.x += speed * dt;
+        this.x += dt * this.speed;
         //console.log(this.x);
     }
     else {
@@ -43,32 +46,93 @@ Enemy.prototype.render = function() {
 var Player = function() {
     this.x = 202;
     this.y = 404;
-    this.sprite = 'images/char-boy.png';
+    this.score = 0;
+    this.lives = 3;
+    //this.hasTargetCollided = false;
+    this.sprite = 'images/char-cat-girl.png';
 };
+
+var resetPlayer = function() {
+    player.x = 202;
+    player.y = 404;
+};
+
+// function showAlert(){
+//     alert("you won");
+// };
 
 Player.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
 
 Player.prototype.update = function() {
-    //player.checkCollisions();
+    this.drawText();
+    this.increaseScore();
+    this.enemyCollision();
+    if(player.score > 20 && player.y === 0) {
+        //setTimeout(function() { alert('you won'); }, 1000);
+        //alert("you won");
+        $('#game-won').show();
+        $('.won').click(function() {
+            $('#game-won').hide();
+            document.location.reload();
+        });
+        //document.location.reload();
+    }
+};
+
+Player.prototype.drawText = function() {
+    ctx.clearRect(0, 0, 120, 20);
+    ctx.clearRect(400, 0, 100, 20);
+    ctx.font = "20px Verdana";
+    ctx.fillStyle = "#505050";
+    ctx.fillText("Score: " + this.score, 8, 20);
+    ctx.fillText("Lives: " + this.lives, 400, 20);
+};
+
+Player.prototype.increaseScore = function() {
+    if(hasReachedWater) {
+        this.score++;
+        setTimeout(resetPlayer, 500);
+        hasReachedWater = false;
+    }
+
+};
+
+Player.prototype.enemyCollision = function() {
+    var bug = checkCollisions(allEnemies);
+    if(bug) {
+        if(this.lives !== 0) {
+            this.lives--;
+            resetPlayer();
+            //this.hasTargetCollided = false;
+        }
+        else {
+            //alert("You lost!");
+            $('#game-over').show();
+            $('.lost').click(function() {
+                $('#game-over').hide();
+                document.location.reload();
+            });
+        }
+    }
 };
 
 //Used the axis-aligned collision detection logic
-var checkCollisions = function() {
-    for(var i = 0; i < allEnemies.length; i++) {
-        if(player.x < allEnemies[i].x + 50 &&
-            player.x + 50 > allEnemies[i].x &&
-            player.y < allEnemies[i].y + 40 &&
-            player.y + 40 > allEnemies[i].y) {
-                //alert("Collision");
-                document.location.reload();
+var checkCollisions = function(targetArray) {
+    for(var i = 0; i < targetArray.length; i++) {
+        if(player.x < targetArray[i].x + 50 &&
+            player.x + 50 > targetArray[i].x &&
+            player.y < targetArray[i].y + 40 &&
+            player.y + 40 > targetArray[i].y) {
+                //player.hasTargetCollided = true;
+                return targetArray[i];
         }
     }
 };
 
 Player.prototype.handleInput = function(key){
-    console.log(this.x, this.y);
+    //console.log(this.x, this.y);
     switch(key) {
         case 'left':
         if(this.x - tileWidth < 0){
@@ -91,6 +155,7 @@ Player.prototype.handleInput = function(key){
         case 'up':
         if(this.y - tileHeight < 0){
             this.y = 0;
+            hasReachedWater = true;
         }
         else {
             this.y -= tileHeight;
@@ -108,13 +173,50 @@ Player.prototype.handleInput = function(key){
     }
 };
 
+var Star = function(){ 
+    this.sprite = 'images/Star.png';
+    this.x = (Math.floor(Math.random() * (5 - 1)) + 1) * 101;
+    this.y = (Math.floor(Math.random() * (4 - 1)) + 1) * 83;
+    //this.width = 101;
+    //this.height = 171;
+    //this.hasTargetCollided = false;
+    //console.log(this.x, this.y);
+};
+
+Star.prototype.render = function() {
+    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+};
+
+Star.prototype.update = function() {
+    this.starCollision();
+};
+
+Star.prototype.starCollision = function() {
+    var target = checkCollisions(allStars);
+    var index = allStars.indexOf(target);
+    if(index > -1) {
+        allStars.splice(index, 1);
+        player.score += 5;
+    }
+};
+
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
 var allEnemies = [ new Enemy(0, 60), new Enemy(101, 150), new Enemy(202, 235), new Enemy(0, 321)];
+for(var i = 0; i < 3; i++){
+    var enemyX = (Math.floor(Math.random() * (6 - 1)) + 1) * 101;
+    var enemyY = (Math.floor(Math.random() * (5 - 1)) + 1) * 83;
+    var enemy = new Enemy(enemyX, enemyY);
+    allEnemies.push(enemy);
+}
 
 // Place the player object in a variable called player
 var player = new Player();
-
+var allStars = [];
+for(var i = 0; i < 4; i++){
+    var star = new Star();
+    allStars.push(star);
+}
 // This listens for key presses and sends the keys to your
 // Player.handleInput() method. You don't need to modify this.
 document.addEventListener('keyup', function(e) {
