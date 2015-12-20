@@ -80,7 +80,8 @@ var Engine = (function(global) {
      */
     function update(dt) {
         updateEntities(dt);
-        checkCollisions();
+        //checkCollisions(allEnemies);
+        //checkCollisions(allStars);
     }
 
     /* This is called by the update function  and loops through all of the
@@ -95,6 +96,9 @@ var Engine = (function(global) {
             enemy.update(dt);
         });
         player.update();
+        allStars.forEach(function(star) {
+            star.update();
+        })
     }
 
     /* This function initially draws the "game level", it will then call
@@ -135,14 +139,7 @@ var Engine = (function(global) {
                 ctx.drawImage(Resources.get(rowImages[row]), col * 101, row * 83);
             }
         }
-
-        //var bonusImage = 'images/Star.png';
-        // var stoneRows = 4;
-        // for(row = 0; row < stoneRows; row++) {
-        //         //ctx.drawImage(Resources.get(bonusImage), 101, 231);
-        //     }
-        // }
-
+        
         renderEntities();
     }
 
@@ -159,6 +156,9 @@ var Engine = (function(global) {
         });
 
         player.render();
+        allStars.forEach(function(star) {
+            star.render();
+        });
     }
 
     /* This function does nothing but it could have been a good place to
@@ -179,7 +179,9 @@ var Engine = (function(global) {
         'images/grass-block.png',
         'images/enemy-bug.png',
         'images/char-boy.png',
-        'images/Star.png'
+        'images/Star.png',
+        'images/char-cat-girl.png',
+        'images/char-princess-girl.png'
     ]);
     Resources.onReady(init);
 
@@ -188,4 +190,15 @@ var Engine = (function(global) {
      * from within their app.js files.
      */
     global.ctx = ctx;
+
+    // $('.lost').click(function() {
+    //     $('#game-over').hide();
+    //     document.location.reload();
+    // });
+
+    // $('.won').click(function() {
+    //     $('#game-won').hide();
+    //     document.location.reload();
+    // });
+    
 })(this);
