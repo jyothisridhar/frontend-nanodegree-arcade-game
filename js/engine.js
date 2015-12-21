@@ -95,7 +95,9 @@ var Engine = (function(global) {
         allEnemies.forEach(function(enemy) {
             enemy.update(dt);
         });
+
         player.update();
+
         allStars.forEach(function(star) {
             star.update();
         })
@@ -156,6 +158,7 @@ var Engine = (function(global) {
         });
 
         player.render();
+        
         allStars.forEach(function(star) {
             star.render();
         });
@@ -191,14 +194,4 @@ var Engine = (function(global) {
      */
     global.ctx = ctx;
 
-    // $('.lost').click(function() {
-    //     $('#game-over').hide();
-    //     document.location.reload();
-    // });
-
-    // $('.won').click(function() {
-    //     $('#game-won').hide();
-    //     document.location.reload();
-    // });
-    
 })(this);
