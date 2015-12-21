@@ -8,14 +8,13 @@ var hasReachedWater = false;
 // Enemies our player must avoid
 var Enemy = function(x,y) {
     // Variables applied to each of our instances go here,
-    // we've provided one for you to get started
-
-    // The image/sprite for our enemies, this uses
-    // a helper we've provided to easily load images
-    this.sprite = 'images/enemy-bug.png';
+    //X and Y co-ordinates of the enemy and the speed of each enemy entity
     this.x = x;
     this.y = y;
     this.speed = Math.floor(Math.random() * 250 + 1);
+    // The image/sprite for our enemies, this uses
+    // a helper we've provided to easily load images
+    this.sprite = 'images/enemy-bug.png';
 };
 
 // Update the enemy's position, required method for game
@@ -24,11 +23,8 @@ Enemy.prototype.update = function(dt) {
     // You should multiply any movement by the dt parameter
     // which will ensure the game runs at the same speed for
     // all computers.
-    //var speed = Math.floor(Math.random() * 300 + 1);
-    //console.log(speed);
     if(this.x < rightEdge) {
         this.x += dt * this.speed;
-        //console.log(this.x);
     }
     else {
         this.x = 0;
@@ -44,43 +40,44 @@ Enemy.prototype.render = function() {
 // This class requires an update(), render() and
 // a handleInput() method.
 var Player = function() {
+    //X, Y co-rdinates of the player
     this.x = 202;
     this.y = 404;
+    //score of a player
     this.score = 0;
+    //number of lives a player has
     this.lives = 3;
-    //this.hasTargetCollided = false;
     this.sprite = 'images/char-cat-girl.png';
 };
 
+//Re position the player once he reaches the water.
 var resetPlayer = function() {
     player.x = 202;
     player.y = 404;
 };
 
-// function showAlert(){
-//     alert("you won");
-// };
-
+//Draw the player on the canvas.
 Player.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
 
+//Update player movements, track score and collisions
 Player.prototype.update = function() {
     this.drawText();
     this.increaseScore();
     this.enemyCollision();
+
     if(player.score > 20 && player.y === 0) {
-        //setTimeout(function() { alert('you won'); }, 1000);
-        //alert("you won");
         $('#game-won').show();
         $('.won').click(function() {
             $('#game-won').hide();
             document.location.reload();
         });
-        //document.location.reload();
     }
 };
 
+//Draw the score and the number of 
+//lives of a player on the canvas
 Player.prototype.drawText = function() {
     ctx.clearRect(0, 0, 120, 20);
     ctx.clearRect(400, 0, 100, 20);
@@ -90,6 +87,7 @@ Player.prototype.drawText = function() {
     ctx.fillText("Lives: " + this.lives, 400, 20);
 };
 
+//Calculate score of the player
 Player.prototype.increaseScore = function() {
     if(hasReachedWater) {
         this.score++;
@@ -99,16 +97,17 @@ Player.prototype.increaseScore = function() {
 
 };
 
+//Player and enemy collision detection.
 Player.prototype.enemyCollision = function() {
     var bug = checkCollisions(allEnemies);
+    //if collision detected, reduce a player life.
+    //Game over if all lives lost.
     if(bug) {
         if(this.lives !== 0) {
             this.lives--;
             resetPlayer();
-            //this.hasTargetCollided = false;
         }
         else {
-            //alert("You lost!");
             $('#game-over').show();
             $('.lost').click(function() {
                 $('#game-over').hide();
@@ -118,6 +117,7 @@ Player.prototype.enemyCollision = function() {
     }
 };
 
+//Method for Collision detection between entities
 //Used the axis-aligned collision detection logic
 var checkCollisions = function(targetArray) {
     for(var i = 0; i < targetArray.length; i++) {
@@ -125,14 +125,15 @@ var checkCollisions = function(targetArray) {
             player.x + 50 > targetArray[i].x &&
             player.y < targetArray[i].y + 40 &&
             player.y + 40 > targetArray[i].y) {
-                //player.hasTargetCollided = true;
                 return targetArray[i];
         }
     }
 };
 
+//Update player movements based on keyboard inputs
+//Player can move up, down, left and right and
+//limit movement within the canvas
 Player.prototype.handleInput = function(key){
-    //console.log(this.x, this.y);
     switch(key) {
         case 'left':
         if(this.x - tileWidth < 0){
@@ -173,27 +174,28 @@ Player.prototype.handleInput = function(key){
     }
 };
 
+//Star - entities that player should collect to win.
 var Star = function(){ 
     this.sprite = 'images/Star.png';
     this.x = (Math.floor(Math.random() * (5 - 1)) + 1) * 101;
     this.y = (Math.floor(Math.random() * (4 - 1)) + 1) * 83;
-    //this.width = 101;
-    //this.height = 171;
-    //this.hasTargetCollided = false;
-    //console.log(this.x, this.y);
 };
 
+//Draw the star sprite on the screen
 Star.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
 
+//Update stars when collected by player
 Star.prototype.update = function() {
     this.starCollision();
 };
 
+//Check for Collision between star and player.
 Star.prototype.starCollision = function() {
     var target = checkCollisions(allStars);
     var index = allStars.indexOf(target);
+
     if(index > -1) {
         allStars.splice(index, 1);
         player.score += 5;
@@ -217,6 +219,7 @@ for(var i = 0; i < 4; i++){
     var star = new Star();
     allStars.push(star);
 }
+
 // This listens for key presses and sends the keys to your
 // Player.handleInput() method. You don't need to modify this.
 document.addEventListener('keyup', function(e) {
