@@ -82,7 +82,7 @@ Player.prototype.drawText = function() {
     ctx.clearRect(0, 0, 120, 20);
     ctx.clearRect(400, 0, 100, 20);
     ctx.font = "20px Verdana";
-    ctx.fillStyle = "#505050";
+    ctx.fillStyle = "black";
     ctx.fillText("Score: " + this.score, 8, 20);
     ctx.fillText("Lives: " + this.lives, 400, 20);
 };
@@ -94,7 +94,6 @@ Player.prototype.increaseScore = function() {
         setTimeout(resetPlayer, 500);
         hasReachedWater = false;
     }
-
 };
 
 //Player and enemy collision detection.
@@ -174,7 +173,7 @@ Player.prototype.handleInput = function(key){
     }
 };
 
-//Star - entities that player should collect to win.
+//Star - objects that player should collect to win.
 var Star = function(){ 
     this.sprite = 'images/Star.png';
     this.x = (Math.floor(Math.random() * (5 - 1)) + 1) * 101;
@@ -214,6 +213,8 @@ for(var i = 0; i < 3; i++){
 
 // Place the player object in a variable called player
 var player = new Player();
+
+//Instantiate Star objects and stored in an array.
 var allStars = [];
 for(var i = 0; i < 4; i++){
     var star = new Star();
