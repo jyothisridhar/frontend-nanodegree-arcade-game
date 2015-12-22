@@ -100,7 +100,7 @@ var Engine = (function(global) {
 
         allStars.forEach(function(star) {
             star.update();
-        })
+        });
     }
 
     /* This function initially draws the "game level", it will then call
@@ -159,6 +159,7 @@ var Engine = (function(global) {
 
         player.render();
         
+        //Loop through the allStars array and call render function
         allStars.forEach(function(star) {
             star.render();
         });
